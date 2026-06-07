@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 function Header() {
   return (
     <div style={{ padding: "20px" }}>
@@ -11,26 +13,35 @@ function Header() {
 
 function ToolItems(props) {
   return (
-    <p style={{ color: "#888", fontSize: "14px" }}>{props.name}</p>
+    <p onClick={() => props.onSelect(props.name)}
+      style={{
+        color: props.isSelected ? "#fff" : "#888", fontSize: "14px"
+      }}> {props.name}</p >
   )
 }
 
-function Sidebar() {
+function Sidebar(props) {
+
   return (
     <div style={{ padding: "20px" }}>
-      <ToolItems name="Select" />
-      <ToolItems name="Rectangle" />
-      <ToolItems name="Text" />
-      <ToolItems name="Circle" />
+      <h3 style={{ color: "#a78bfa" }}>Tools</h3>
+      <p>{props.selectedTool}</p>
+      <ToolItems name="Select" isSelected={props.selectedTool === "Select"} onSelect={props.onSelect} />
+      <ToolItems name="Rectangle" isSelected={props.selectedTool === "Rectangle"} onSelect={props.onSelect} />
+      <ToolItems name="Text" isSelected={props.selectedTool === "Text"} onSelect={props.onSelect} />
+      <ToolItems name="Circle" isSelected={props.selectedTool === "Circle"} onSelect={props.onSelect} />
     </div>
   )
 }
 
 function App() {
+  const [selectedTool, setSelectedTool] = useState("Select")
+
   return (
     <div >
       <Header />
-      <Sidebar />
+      <p>{selectedTool}</p>
+      <Sidebar selectedTool={selectedTool} onSelect={setSelectedTool} />
     </div>
   )
 }
