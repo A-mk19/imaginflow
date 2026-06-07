@@ -330,6 +330,14 @@ everything else turns grey         ← UI updates
 
 ---
 
+## one line definations
+
+- **Components** — functions that return HTML and are used as tags to build the UI.
+
+- **Props** — data passed into a component from outside to make it reusable.
+
+- **State** — data that lives inside a component and when changed, React updates the screen automatically.
+
 ## 🗺️ Roadmap
 - [x] Project setup
 - [x] React components
