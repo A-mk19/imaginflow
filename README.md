@@ -1,16 +1,32 @@
-# React + Vite
+# Imaginflow.io
+Visual app builder — drag, connect, deploy.
+Started: 7 June 2026
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+## Week 1 — React Fundamentals
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Topic 1 — Components
+- Everything in React is a component
+- A component is just a function that returns HTML
+- Component names must always start with a Capital letter
+- App() is the root component — everything lives inside it
+- You use a component like an HTML tag: <Header />
+- React treats lowercase tags as HTML, uppercase as your components
 
-## React Compiler
+### Topic 2 — Props
+- Props are like parameters for a component
+- They let you pass data from outside instead of hardcoding
+- You pass props like attributes: <ToolItem name="Select" />
+- You read props inside the component: {props.name}
+- Same component, different data each time — that's the power of props
+- style={{ }} needs double curly braces — outer {} means JS, inner {} is the object
+- Colors always need # — "#888" not "888"
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Project Structure
+- Header — top bar with project name
+- Sidebar — tools panel (Select, Rectangle, Text, Circle)
+- ToolItem — reusable single tool button component
+- App — root component that holds everything
