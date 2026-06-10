@@ -338,12 +338,377 @@ everything else turns grey         ← UI updates
 
 - **State** — data that lives inside a component and when changed, React updates the screen automatically.
 
+# Imaginflow.io 🌊
+## Day 2 Notes — 8 Jun 2026
+### Tailwind CSS + Full Layout Skeleton
+
+---
+
+## Topic 1 — Tailwind CSS
+
+**Core idea:**
+> Tailwind is just shortcuts for CSS. Every class = one CSS property. That's it.
+
+**The pattern is always:**
+```
+property - value
+bg       - gray-900    →   background-color: dark gray
+text     - purple-400  →   color: purple
+p        - 3           →   padding: 12px
+```
+
+---
+
+### Colors
+```
+bg-{color}-{shade}      →   background color
+text-{color}-{shade}    →   text color
+border-{color}-{shade}  →   border color
+
+shades: 50 100 200 300 400 500 600 700 800 900 950
+        lighter ←————————————————————→ darker
+```
+
+**Visual — Gray shades:**
+```
+50  ░░░░  100 ░░░░  200 ░░░░  300 ░░░░  400 ░░░░
+500 ████  600 ████  700 ████  800 ████  900 ████  950 ████
+light                                           dark
+```
+
+---
+
+### Spacing (padding & margin)
+```
+p-{n}    →   padding all sides
+px-{n}   →   padding left + right   (x = horizontal)
+py-{n}   →   padding top + bottom   (y = vertical)
+pt/pb/pl/pr  →   padding one side
+
+m-{n}    →   margin all sides
+mx/my/mt/mb/ml/mr  →   same pattern as padding
+
+1 unit = 4px
+p-1 = 4px   p-2 = 8px   p-3 = 12px
+p-4 = 16px  p-6 = 24px  p-8 = 32px
+```
+
+**Visual:**
+```
+p-1  [▏] 4px
+p-2  [▎] 8px
+p-3  [▍] 12px
+p-4  [▌] 16px
+p-6  [▊] 24px
+p-8  [█] 32px
+```
+
+**Key rule:**
+> x = horizontal (left + right)
+> y = vertical (top + bottom)
+> Same as math — x axis goes sideways, y axis goes up/down
+
+---
+
+### Sizing
+```
+w-{n}      →   width  (same units, 1=4px)
+h-{n}      →   height (same units, 1=4px)
+w-full     →   width 100%
+h-full     →   height 100%
+h-screen   →   height 100vh (full screen)
+w-screen   →   width 100vw
+flex-1     →   takes all remaining space
+```
+
+**Visual — flex-1:**
+```
+┌──────────────────────────────────────────┐
+│ w-48 sidebar │  flex-1 canvas  │ w-64 props│
+│   192px      │ takes the rest  │  256px    │
+└──────────────────────────────────────────┘
+```
+
+---
+
+### Layout — Flexbox
+```
+flex              →   enable flexbox on container
+flex-row          →   children side by side (default)
+flex-col          →   children stacked vertically
+items-center      →   center on cross axis
+items-start       →   align to start
+items-end         →   align to end
+justify-center    →   center on main axis
+justify-between   →   space between children
+gap-{n}           →   space between children
+overflow-hidden   →   hide overflow content
+ml-auto           →   push element to far right
+```
+
+**Visual:**
+```
+flex-row:                    flex-col:
+┌────┬────┬────┐             ┌────┐
+│ A  │ B  │ C  │             │ A  │
+└────┴────┴────┘             ├────┤
+                             │ B  │
+                             ├────┤
+                             │ C  │
+                             └────┘
+
+justify-between:             items-center (in tall box):
+┌─────────────────┐          ┌──────┐
+│A      B       C │          │      │
+└─────────────────┘          │ ABC  │
+                             │      │
+                             └──────┘
+```
+
+---
+
+### Text
+```
+text-xs    →   12px
+text-sm    →   14px
+text-base  →   16px
+text-lg    →   18px
+text-xl    →   20px
+text-2xl   →   24px
+text-3xl   →   30px
+
+font-normal    →   weight 400
+font-medium    →   weight 500
+font-semibold  →   weight 600
+font-bold      →   weight 700
+
+text-left      →   align left (default)
+text-center    →   align center
+text-right     →   align right
+
+uppercase      →   ALL CAPS
+tracking-widest →  wide letter spacing
+```
+
+---
+
+### Border & Radius
+```
+border          →   1px solid border (MUST come before border-color)
+border-{color}  →   border color (needs border first!)
+border-t/b/l/r  →   one side only
+
+rounded         →   small radius
+rounded-lg      →   larger radius
+rounded-full    →   circle
+```
+
+**Bug fixed:**
+```jsx
+// wrong - border-white alone does nothing
+className="border-white"
+
+// correct - need border first
+className="border border-white"
+```
+
+---
+
+### Hover & Cursor
+```
+hover:bg-{color}    →   background on hover
+hover:text-{color}  →   text color on hover
+cursor-pointer      →   hand cursor
+cursor-crosshair    →   crosshair cursor (used on canvas)
+```
+
+---
+
+## Topic 2 — Imaginflow Layout Built
+
+**Final layout structure:**
+```
+┌─────────────────────────────────────────────────┐
+│  HEADER  (h-16, bg-slate-950)                   │
+│  Logo │ Project Name │ Icons + Buttons           │
+├─────────────────────────────────────────────────┤
+│  TOOLBAR  (h-8, bg-slate-950)                   │
+│  Components │ Design │ Functions │ Connections  │
+│  Execution │ Backend │ Database                 │
+├──────────┬──────────────────────────┬────────────┤
+│          │                          │            │
+│ SIDEBAR  │       CANVAS             │ PROPERTIES │
+│ w-50     │       flex-1             │ w-50       │
+│ bg-slate │       bg-white           │ bg-slate   │
+│ -950     │                          │ -950       │
+│          │  [floating bottom bar]   │            │
+└──────────┴──────────────────────────┴────────────┘
+```
+
+**Component tree:**
+```
+App
+├── Header
+├── ToolBar
+│   └── Tools (×7)
+└── Middle
+    ├── SideBar
+    ├── Canvas
+    └── RightSidebar
+```
+
+---
+
+## Topic 3 — useRef
+
+**Core idea:**
+> useRef gives you a direct reference to a DOM element so you can control it directly from code.
+
+```jsx
+const canvasRef = useRef(null)
+
+// attach to element
+<div ref={canvasRef}>
+
+// now you can control it directly
+canvasRef.current.scrollLeft += 100
+```
+
+Used in Canvas for horizontal scroll with Shift + scroll wheel.
+
+---
+
+## Topic 4 — Zoom with Scroll Wheel
+
+**Core idea:**
+> `onWheel` event fires when user scrolls. `e.deltaY` tells direction.
+
+```jsx
+function handleZoom(e) {
+  e.preventDefault()
+
+  // SHIFT + SCROLL = horizontal pan
+  if (e.shiftKey) {
+    canvasRef.current.scrollLeft += e.deltaY
+    return
+  }
+
+  // scroll up = zoom in
+  if (e.deltaY < 0) {
+    setZoom(prev => Math.min(prev + 0.1, 3))    // max 3x
+  }
+  // scroll down = zoom out
+  else {
+    setZoom(prev => Math.max(prev - 0.1, 0.2))  // min 0.2x
+  }
+}
+```
+
+**Key rules:**
+```
+e.deltaY < 0  →  scroll UP
+e.deltaY > 0  →  scroll DOWN
+
+Math.min(value, max)  →  never goes above max
+Math.max(value, min)  →  never goes below min
+
+prev =>  →  safer way to update state based on previous value
+```
+
+**Apply zoom to element:**
+```jsx
+style={{
+  transform: `scale(${zoom})`,      // backticks ` ` not quotes ' '
+  transformOrigin: "top left"        // zoom from this point
+}}
+```
+
+**CRITICAL bug fixed:**
+```jsx
+// wrong - single quotes, ${zoom} never works
+transform: 'scale(${zoom})'
+
+// correct - backticks allow JS variables
+transform: `scale(${zoom})`
+```
+
+---
+
+## Topic 5 — Lucide React Icons
+
+**Install:**
+```bash
+npm install lucide-react
+```
+
+**Import and use:**
+```jsx
+import { Undo2, Redo2, PanelLeftClose, Check } from "lucide-react"
+
+<Undo2 size={18} className="text-gray-400 hover:text-white cursor-pointer" />
+```
+
+**Icons used in Imaginflow:**
+```
+Undo2           →   undo action
+Redo2           →   redo action
+PanelLeftClose  →   hide left sidebar
+PanelRightClose →   hide right properties
+PanelBottomClose →  hide bottom bar
+Check           →   save button
+Eye             →   preview button
+Download        →   deploy button
+```
+
+---
+
+## 🐛 Bugs Fixed — Day 2
+
+| Bug | Wrong | Correct |
+|-----|-------|---------|
+| JSX uses className not class | `class="flex"` | `className="flex"` |
+| border needs border first | `border-white` | `border border-white` |
+| w-{n} not px value | `w-48 = 48px` | `w-48 = 192px (×4)` |
+| backticks for JS in strings | `'scale(${zoom})'` | `` `scale(${zoom})` `` |
+| h-screen only once | Middle had `h-screen` | Middle uses `flex-1` |
+| prop name case sensitive | `selectTools` | `selectedTools` |
+| fixed width conflicts padding | `w-6 px-4` on button | remove `w-6` |
+| Capital S in Scale | `transform: Scale()` | `transform: scale()` |
+
+---
+
+## One Line Summaries
+
+> **Tailwind** — CSS shortcuts, every class = one property, pattern is property-value
+
+> **className** — React uses className not class because class is a JS keyword
+
+> **flex-1** — takes all remaining space after fixed-width siblings
+
+> **h-screen only once** — only root div gets h-screen, children use flex-1
+
+> **onWheel** — fires on scroll, deltaY < 0 is up, deltaY > 0 is down
+
+> **Backticks** — use backticks for strings with JS variables, not quotes
+
+---
+
+## 📦 What's Installed
+- React (Vite) ✅
+- Tailwind CSS (@tailwindcss/vite) ✅
+- lucide-react ✅
+
 ## 🗺️ Roadmap
 - [x] Project setup
 - [x] React components
 - [x] Props
 - [x] State (useState)
-- [ ] Canvas with react-konva
+- [x] Tailwind CSS
+- [x] Full layout skeleton
+- [x] Zoom with scroll
+- [ ] Canvas panning (click + drag)
+- [ ] react-konva setup
+- [ ] Draggable objects on canvas
 - [ ] Material panel
 - [ ] Firebase auth
 - [ ] Backend blocks
