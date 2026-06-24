@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { PanelLeftClose, PanelRightClose, PanelBottomClose, Undo2, Redo2, Check, Eye, Download } from "lucide-react"
 
 
@@ -25,9 +25,13 @@ function Header(props) {
       <div className="flex items-center gap-4 text-center ">
         <Undo2 className="text-gray-400 cursor-pointer hover:text-white" size={18} />
         <Redo2 className="text-gray-400 cursor-pointer hover:text-white" size={18} />
+
+        {/* Pannels toggle bottons */}
         <PanelLeftClose onClick={props.toggelLeft} className="text-gray-400 cursor-pointer hover:text-white" size={18} />
-        <PanelRightClose onClick={props.toggelRight} className="text-gray-400 cursor-pointer hover:text-white" size={18} />
         <PanelBottomClose onClick={props.toggelBottom} className="text-gray-400 cursor-pointer hover:text-white" size={18} />
+        <PanelRightClose onClick={props.toggelRight} className="text-gray-400 cursor-pointer hover:text-white" size={18} />
+
+        {/* action buttons save,preview deploy */}
         <button className="bg-green-500  hover:bg-gray-50 px-4 py-1 rounded-lg flex items-center justify-center gap-1"><Check size={14} /></button>
         <button className="bg-yellow-500 hover:bg-gray-50 px-4 py-1 rounded-lg flex items-center justify-center gap-1"><Eye size={14} /></button>
         <button className="bg-blue-500 hover:bg-gray-800 px-4 py-1 rounded-lg flex items-center justify-center gap-1"><Download size={14} /></button>
@@ -95,29 +99,94 @@ function SideBar(props) {
 //canvas function
 function Canvas(props) {
   //useState for zoom with scroll wheel ans shift<-->
-  const [zoom, setZoom] = useState(1)
+  const zoom = props.zoom
   const canvasRef = useRef(null)
+  // replace with these
+  const isPanning = useRef(false)
+  const startPos = useRef({ x: 0, y: 0 })
+  // const offset = useRef({ x: 0, y: 0 })
+  const [, forceUpdate] = useState(0)
+
+  useEffect(() => {
+    function handleGlobalMouseUp() {
+      isPanning.current = false
+    }
+
+    window.addEventListener("mouseup", handleGlobalMouseUp)
+
+    return () => {
+      window.removeEventListener("mouseup", handleGlobalMouseUp)
+    }
+  }, [])
+
+
+  useEffect(() => {
+    const el = canvasRef.current
+
+    el.addEventListener("wheel", handleZoom, { passive: false })
+
+    return () => {
+      el.removeEventListener("wheel", handleZoom)
+    }
+  }, [zoom])  // ← add zoom here instead of [])
+
+
+
+
+  function HandelMouseDown(e) {
+    e.preventDefault()
+    isPanning.current = true
+    startPos.current = { x: e.clientX, y: e.clientY }
+  }
+
+  function HandleMouseMove(e) {
+    if (!isPanning.current) return
+    const dx = e.clientX - startPos.current.x
+    const dy = e.clientY - startPos.current.y
+    forceUpdate(p => p + 1)
+    const canvasX = Math.round((e.clientX + canvasRef.current.scrollLeft) / zoom)
+    const canvasY = Math.round((e.clientY + canvasRef.current.scrollTop) / zoom)
+    props.setMousePos({ x: canvasX, y: canvasY })
+    canvasRef.current.scrollLeft -= dx
+    canvasRef.current.scrollTop -= dy
+    // offset.current.x += dx
+    // offset.current.y += dy
+    startPos.current = { x: e.clientX, y: e.clientY }
+
+  }
+
+  function HandleMouseUp() {
+    isPanning.current = false
+  }
   //zoom function
   function handleZoom(e) {
-    e.preventDefault();
 
-    // SHIFT + SCROLL = horizontal scroll
-    if (e.shiftKey) {
-      canvasRef.current.scrollLeft += e.deltaY
-      return
+    if (e.ctrlKey) {
+      e.preventDefault();
+      // SHIFT + SCROLL = horizontal scroll
+      if (e.shiftKey) {
+        canvasRef.current.scrollLeft += e.deltaY
+        return
+      }
+      // zoomin-zoomout scroll wheel condition
+      if (e.deltaY < 0) {
+        props.setZoom(prev => Math.min(prev + 0.1, 3)) // scroll up = zoom IN, max 3x
+      } else {
+        props.setZoom(prev => Math.max(prev - 0.1, 0.2))
+        // scroll down = zoom OUT, min 0.2x
+      }
     }
-    // zoomin-zoomout scroll wheel condition
-    if (e.deltaY < 0) {
-      setZoom(prev => Math.min(prev + 0.1, 3))    // scroll up = zoom IN, max 3x
-    } else {
-      setZoom(prev => Math.max(prev - 0.1, 0.2))  // scroll down = zoom OUT, min 0.2x
-    }
+
   }
   return (
     // canavs parent-tag
     <div className="flex flex-1 h-full w-full bg-gray-50 ">
       {/* white board */}
-      <div ref={canvasRef} className="flex flex-1 bg-white justify-center items-center overflow-auto cursor-crosshair p-2 relative " onWheel={handleZoom} >
+      <div ref={canvasRef} className="flex flex-1 bg-white justify-center items-center overflow-auto cursor-crosshair p-2 relative " onMouseDown={HandelMouseDown} onMouseMove={HandleMouseMove} onMouseUp={HandleMouseUp} onMouseLeave={HandleMouseUp} style={{
+        backgroundImage: `radial-gradient(circle, #222222 1px, transparent 1px)`,
+        backgroundPosition: `${-canvasRef.current?.scrollLeft || 0}px ${-canvasRef.current?.scrollTop || 0}px`,
+        backgroundSize: `${20 * zoom}px ${20 * zoom}px`,
+      }}>
         {/* <div  onWheel={handelZoom}> */}
         <div style={{ transform: `scale(${zoom})`, transformOrigin: "top left", width: "100%", height: "100%" }}>
           <p className="text-black">test text</p>
@@ -131,9 +200,10 @@ function Canvas(props) {
   )
 }
 
+
 function QuickAccessBar(props) {
   return (
-    <div className="left-1/2 -translate-x-1/2 flex w-[60%] bg-slate-950 h-10 rounded-lg shadow-lg shadow-gray-700  fixed bottom-4 opacity-20 hover:opacity-100">
+    <div className="left-1/2 -translate-x-1/2 flex w-[60%] bg-slate-950 h-6  rounded-lg shadow-lg shadow-gray-700  fixed bottom-8 opacity-20 hover:opacity-100">
       < h1 > Bottom Bar</h1 >
     </div >
   )
@@ -152,13 +222,21 @@ function Middle(props) {
   return (
     <div className="flex flex-row flex-1 overflow-hidden">
       {props.showLeft && <SideBar selectedTools={props.selectedTools} />}
-      <Canvas />
+      <Canvas setMousePos={props.setMousePos} setZoom={props.setZoom} zoom={props.zoom} />
       {props.showBottom && <QuickAccessBar />}
       {props.showRight && <RightSidebar />}
     </div>
   )
 }
 
+function StatusBar(props) {
+  return (
+    <div className="flex h-6 bg-slate-950 border-t border-gray-700 items-center px-4 gap-6">
+      <p className="text-gray-400 text-xs">X: {props.mouseX} Y: {props.mouseY}</p>
+      <p className="text-gray-400 text-xs">Zoom: {props.zoom}%</p>
+    </div>
+  )
+}
 
 
 function App() {
@@ -167,6 +245,8 @@ function App() {
   const [showLeft, setShowLeft] = useState(true)
   const [showRight, setShowRight] = useState(true)
   const [showBottom, setShowBottom] = useState(true)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
 
   function toggelLeft() {
     setShowLeft(prev => !prev)
@@ -178,6 +258,8 @@ function App() {
   }
 
 
+
+
   function toggelBottom() {
     setShowBottom(prev => !prev)
   }
@@ -186,7 +268,8 @@ function App() {
     <div className="flex flex-col h-screen ">
       <Header toggelLeft={toggelLeft} toggelRight={toggelRight} toggelBottom={toggelBottom} />
       <ToolBar selectedTools={selectedTools} onSelect={setSelectedTools} />
-      <Middle selectedTools={selectedTools} setSelectedTools={setSelectedTools} showLeft={showLeft} showRight={showRight} showBottom={showBottom} />
+      <Middle selectedTools={selectedTools} setSelectedTools={setSelectedTools} showLeft={showLeft} showRight={showRight} showBottom={showBottom} setMousePos={setMousePos} zoom={zoom} setZoom={setZoom} />
+      <StatusBar mouseX={mousePos.x} mouseY={mousePos.y} zoom={Math.round(zoom * 100)} />
     </div>
   )
 }
