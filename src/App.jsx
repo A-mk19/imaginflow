@@ -3,7 +3,7 @@ import { PanelLeftClose, PanelRightClose, PanelBottomClose, Undo2, Redo2, Check,
 
 
 // {brand and header options section}
-function Header() {
+function Header(props) {
   return (
     <div className="flex px-4 h-16 bg-slate-950 items-center">
 
@@ -25,9 +25,9 @@ function Header() {
       <div className="flex items-center gap-4 text-center ">
         <Undo2 className="text-gray-400 cursor-pointer hover:text-white" size={18} />
         <Redo2 className="text-gray-400 cursor-pointer hover:text-white" size={18} />
-        <PanelLeftClose className="text-gray-400 cursor-pointer hover:text-white" size={18} />
-        <PanelRightClose className="text-gray-400 cursor-pointer hover:text-white" size={18} />
-        <PanelBottomClose className="text-gray-400 cursor-pointer hover:text-white" size={18} />
+        <PanelLeftClose onClick={props.toggelLeft} className="text-gray-400 cursor-pointer hover:text-white" size={18} />
+        <PanelRightClose onClick={props.toggelRight} className="text-gray-400 cursor-pointer hover:text-white" size={18} />
+        <PanelBottomClose onClick={props.toggelBottom} className="text-gray-400 cursor-pointer hover:text-white" size={18} />
         <button className="bg-green-500  hover:bg-gray-50 px-4 py-1 rounded-lg flex items-center justify-center gap-1"><Check size={14} /></button>
         <button className="bg-yellow-500 hover:bg-gray-50 px-4 py-1 rounded-lg flex items-center justify-center gap-1"><Eye size={14} /></button>
         <button className="bg-blue-500 hover:bg-gray-800 px-4 py-1 rounded-lg flex items-center justify-center gap-1"><Download size={14} /></button>
@@ -73,8 +73,14 @@ function SideBar(props) {
       </div>
       {/* drop downfor tools catogory */}
       <div className="w-full h-full border-2 border-gray-50 bg-slate-900 align-middle ">
-        <div className="w-full h-5 border-2 border-gray-50 bg-gray-50 ">
-          <p className="text-xs">Drop down for catogory tools</p>
+        <div className="w-full flex border-2 border-gray-50 bg-gray-50 items-center ">
+          <select className="w-full text-xs  " name="toolCatogory" id="toolCatogory">
+            <option className="w-full" value="">1</option>
+            <option className="w-full" value="">2</option>
+            <option className="w-full" value="">3</option>
+            <option className="w-full" value="">4</option>
+            <option className="w-full" value="">5</option>
+          </select>
         </div>
         {/* tools and components will appear here */}
         <div className="w-full h-full flex justify-center items-center">
@@ -87,7 +93,7 @@ function SideBar(props) {
 
 
 //canvas function
-function Canvas() {
+function Canvas(props) {
   //useState for zoom with scroll wheel ans shift<-->
   const [zoom, setZoom] = useState(1)
   const canvasRef = useRef(null)
@@ -116,14 +122,20 @@ function Canvas() {
         <div style={{ transform: `scale(${zoom})`, transformOrigin: "top left", width: "100%", height: "100%" }}>
           <p className="text-black">test text</p>
         </div>
-        <div className="left-1/2 -translate-x-1/2 flex w-[60%] bg-slate-950 h-10 rounded-lg shadow-lg shadow-gray-700  fixed bottom-4 opacity-20 hover:opacity-100">
-
-        </div>
+        {props.showBottom && <div ></div>}
 
       </div>
 
 
     </div>
+  )
+}
+
+function QuickAccessBar(props) {
+  return (
+    <div className="left-1/2 -translate-x-1/2 flex w-[60%] bg-slate-950 h-10 rounded-lg shadow-lg shadow-gray-700  fixed bottom-4 opacity-20 hover:opacity-100">
+      < h1 > Bottom Bar</h1 >
+    </div >
   )
 }
 
@@ -139,27 +151,42 @@ function RightSidebar(props) {
 function Middle(props) {
   return (
     <div className="flex flex-row flex-1 overflow-hidden">
-      <SideBar selectedTools={props.selectedTools} />
+      {props.showLeft && <SideBar selectedTools={props.selectedTools} />}
       <Canvas />
-      <RightSidebar />
+      {props.showBottom && <QuickAccessBar />}
+      {props.showRight && <RightSidebar />}
     </div>
   )
 }
 
 
 
-
-
-
-
 function App() {
   // usestate for Toolbar-props
   const [selectedTools, setSelectedTools] = useState("Components")
+  const [showLeft, setShowLeft] = useState(true)
+  const [showRight, setShowRight] = useState(true)
+  const [showBottom, setShowBottom] = useState(true)
+
+  function toggelLeft() {
+    setShowLeft(prev => !prev)
+  }
+
+
+  function toggelRight() {
+    setShowRight(prev => !prev)
+  }
+
+
+  function toggelBottom() {
+    setShowBottom(prev => !prev)
+  }
+
   return (
     <div className="flex flex-col h-screen ">
-      <Header />
+      <Header toggelLeft={toggelLeft} toggelRight={toggelRight} toggelBottom={toggelBottom} />
       <ToolBar selectedTools={selectedTools} onSelect={setSelectedTools} />
-      <Middle selectedTools={selectedTools} setSelectedTools={setSelectedTools} />
+      <Middle selectedTools={selectedTools} setSelectedTools={setSelectedTools} showLeft={showLeft} showRight={showRight} showBottom={showBottom} />
     </div>
   )
 }
